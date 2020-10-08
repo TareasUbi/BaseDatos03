@@ -3,12 +3,18 @@ import redis.clients.jedis.Jedis;
 
 public class Practica06BaseDatos031020 {
     //Correlativos
-    public static int correlativoCJ = 1;
+    //public static int correlativoCJ = 1;
     public static int correlativoPL = 1;
     public static int correlativoCR = 1;
     public static int correlativoAM = 1;
+    public static Jedis jedis = new Jedis("redis-14505.c241.us-east-1-4.ec2.cloud.redislabs.com", 14505);
     public static void main(String [] www){
-
+        jedis.auth("dSSj6jmUk1FOanYEtwKZPy8CsSfOtZcG");
+        //jedis.del("tickets");
+        String valCJ = jedis.get("correlativoCJ");
+        if(valCJ == null) {
+            jedis.set("correlativoCJ", "1");
+        }
         int externo = 1;
         for (int i=0; i<externo; i++){
             imprimirMenu();
@@ -36,17 +42,20 @@ public class Practica06BaseDatos031020 {
                 "\n0) Salir");
     }
     public static int opciones(){
-        //Librerias
-        Jedis jedis = new Jedis("redis-14505.c241.us-east-1-4.ec2.cloud.redislabs.com", 14505);
-        jedis.auth("dSSj6jmUk1FOanYEtwKZPy8CsSfOtZcG");
+
         Scanner leer = new Scanner(System.in);
 
         int opc = leer.nextInt();
         switch (opc){
             case 1:
-                jedis.rpush("tickets", "CJ" + (correlativoCJ) +" - Israel");
-                correlativoCJ= correlativoCJ+1;
+                /* Optimizar */
+                String correlativoCJ = jedis.get("correlativoCJ");
+                int corrCJ = Integer.parseInt(correlativoCJ);
+                jedis.rpush("tickets", "CJ" + (corrCJ) +" - Israel");
+                //correlativoCJ= correlativoCJ+1;
+                jedis.set("correlativoCJ", (corrCJ + 1)+"");
                 break;
+                /* fin optimizar */
             case 2:
                 jedis.rpush("tickets", "PL" + (correlativoPL) +" - Israel");
                 correlativoPL=correlativoPL+1;
@@ -71,7 +80,6 @@ public class Practica06BaseDatos031020 {
 }
 
 
-// Actividad: podamos compartirel correlativo con todos los companeros para que no haya corelativo duplicado
 
 // https://github.com/Brb-code/javaNoSQL/blob/master/redis/principal.java
 
